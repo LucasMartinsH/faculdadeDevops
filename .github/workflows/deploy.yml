@@ -1,4 +1,4 @@
-name: CD
+name: DEPLOY
 
 on:
   pull_request:
@@ -9,9 +9,17 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout código
         uses: actions/checkout@v3
 
-      - name: Deploy
-        run: echo "deploy simulação"
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifact
+
+      - name: Simular deploy
+        run: |
+          echo "Fazendo deploy com o artifact baixado..."
+          cat build.txt
