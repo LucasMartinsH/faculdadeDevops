@@ -1,3 +1,3 @@
 # branch dev
 
-atualização readme no branch dev
+atualizando readme no branch dev
