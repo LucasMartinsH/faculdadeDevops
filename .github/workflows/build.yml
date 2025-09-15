@@ -4,12 +4,11 @@ on:
   pull_request:
     branches: [ main ]
   push:
-    branches: [ dev ]
+    branches: [ dev, main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -17,7 +16,7 @@ jobs:
       - name: Simular build
         run: |
           mkdir output
-          echo "Arquivo gerado no build em $(date)" > output/build.txt
+          echo "Build em $(date)" > output/build.txt
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -25,9 +24,30 @@ jobs:
           name: build-artifact
           path: output/
 
+  docker:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Logar no DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build da imagem
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/minha-aplicacao:latest .
+
+      - name: Push da imagem para o DockerHub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/minha-aplicacao:latest
+
   deploy:
     runs-on: ubuntu-latest
-    needs: build   # <-- garante que só roda depois do build
+    needs: docker
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -40,6 +60,6 @@ jobs:
 
       - name: Simular deploy
         run: |
-          echo "Fazendo deploy com o artifact baixado..."
+          echo "Deploy rodando com artifact e imagem do DockerHub!"
           ls -l ./deploy
           cat ./deploy/build.txt
