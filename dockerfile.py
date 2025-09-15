@@ -1,20 +1,14 @@
-# Imagem base Node.js
-FROM node:18-alpine
+# Imagem base leve
+FROM alpine:3.18
 
 # Diretório de trabalho
 WORKDIR /app
 
-# Copiar arquivos de dependências
-COPY package*.json ./
+# Criar arquivo de build simulado
+RUN echo "Aplicação simulada - build em $(date)" > build.txt
 
-# Instalar dependências
-RUN npm install
-
-# Copiar o restante do código
-COPY . .
-
-# Expor porta usada pela aplicação
+# Expor porta apenas para fins de teste
 EXPOSE 3000
 
-# Comando para rodar a aplicação
-CMD ["node", "src/app.js"]
+# Comando para manter o container rodando
+CMD ["sh", "-c", "while true; do sleep 3600; done"]
